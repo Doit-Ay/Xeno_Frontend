@@ -46,7 +46,7 @@ export default function Customers() {
     setLoading(true);
     api.getCustomers({ search: searchTerm, page: pageNum, limit }).then(data => {
       setCustomers(data?.customers || []);
-      setTotal(data?.total || 0);
+      setTotal(data?.pagination?.total || 0);
       setLoading(false);
     }).catch(() => setLoading(false));
   };
