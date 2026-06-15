@@ -3,6 +3,8 @@
 A modern, AI-native CRM dashboard built with **Next.js 16** and **React 19**.
 Part of the Xeno AI-Native Mini CRM platform for Luxe & Co.
 
+![Architecture Diagram](/architecture.png)
+
 ## Features
 
 - Customer management with search and filtering

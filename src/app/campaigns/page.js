@@ -40,14 +40,14 @@ export default function Campaigns() {
       setLoading(true);
       Promise.all([
         api.getCampaigns().catch(() => ({ campaigns: [] })),
-        api.getSegments().catch(() => ({ segments: [] }))
+        api.getSegments().catch(() => [])
       ]).then(([cData, sData]) => {
         setCampaigns(cData.campaigns || []);
-        setSegments(sData.segments || []);
+        setSegments(Array.isArray(sData) ? sData : (sData.segments || []));
         setLoading(false);
       });
     } else if (view === 'create' && segments.length === 0) {
-      api.getSegments().then(data => setSegments(data.segments || []));
+      api.getSegments().then(data => setSegments(Array.isArray(data) ? data : (data.segments || [])));
     }
   }, [view]);
 
@@ -149,8 +149,8 @@ export default function Campaigns() {
 
           {/* Content Panel */}
           <div className="flex-col gap-16">
-            <div className="card" style={{ background: 'rgba(var(--accent-rgb), 0.06)', borderColor: 'rgba(var(--accent-rgb), 0.12)' }}>
-              <div className="flex items-center gap-8 mb-12" style={{ color: 'var(--accent)', fontWeight: 600, fontSize: '.88rem' }}>
+            <div className="card" style={{ background: '#ffffff', borderColor: '#ffffff', color: '#000000', boxShadow: '0 8px 32px rgba(255,255,255,0.1)' }}>
+              <div className="flex items-center gap-8 mb-12" style={{ color: '#000000', fontWeight: 600, fontSize: '.88rem' }}>
                 <Icon d={ICONS.spark} /> AI Copywriter
               </div>
               <div className="flex gap-8">
@@ -159,9 +159,9 @@ export default function Campaigns() {
                   value={aiPrompt}
                   onChange={e => setAiPrompt(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAiGenerate()}
-                  style={{ background: 'var(--bg-input)' }}
+                  style={{ background: 'rgba(0,0,0,0.05)', color: '#000000', border: '1px solid rgba(0,0,0,0.1)' }}
                 />
-                <button className="btn btn-secondary" onClick={handleAiGenerate} disabled={generating} style={{ whiteSpace: 'nowrap' }}>
+                <button className="btn" onClick={handleAiGenerate} disabled={generating} style={{ whiteSpace: 'nowrap', background: '#000000', color: '#ffffff' }}>
                   {generating ? 'Drafting...' : 'Draft copy'}
                 </button>
               </div>

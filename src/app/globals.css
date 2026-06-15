@@ -720,7 +720,7 @@ tr:last-child td { border-bottom: 0; }
 .campaign-list-result > span:last-child { color: var(--text-muted); font-size: .64rem; }
 
 /* Campaign / Segment form utilities */
-.campaign-channel-grid { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 14px; }
+.campaign-channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .segment-rule-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .segment-rule-row select { width: 100% !important; }
 
