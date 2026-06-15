@@ -1,0 +1,108 @@
+.bentoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--bento-gap);
+}
+
+.metricPanel {
+  grid-column: span 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.insightPanel {
+  grid-column: span 2;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.insightPanel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0), var(--accent), rgba(var(--accent-rgb), 0));
+  background-size: 200% auto;
+  animation: aiBorderShimmer 3s linear infinite;
+  z-index: 10;
+}
+
+.insightHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.insightIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--accent);
+  box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.2);
+}
+
+.insightTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.insightBody {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.funnelPanel {
+  grid-column: span 2;
+}
+
+.campaignsPanel {
+  grid-column: span 4;
+}
+
+.sparklineContainer {
+  margin-top: auto;
+  padding-top: 16px;
+  height: 50px;
+  width: 100%;
+}
+
+.sparklineSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sparklinePath {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+  animation: drawPath 1.5s ease-out forwards;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+
+@keyframes drawPath {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (max-width: 1024px) {
+  .insightPanel, .funnelPanel { grid-column: span 4; }
+  .metricPanel { grid-column: span 2; }
+}
+
+@media (max-width: 640px) {
+  .metricPanel { grid-column: span 4; }
+}

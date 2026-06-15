@@ -1,0 +1,205 @@
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: var(--space-md);
+  padding: 0 16px;
+  height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  background: rgba(14, 14, 22, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text-muted);
+  transition: all 0.22s ease;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.searchBar:focus-within {
+  border-color: rgba(var(--accent-rgb), 0.4);
+  background: rgba(14, 14, 22, 0.7);
+  box-shadow:
+    0 0 0 3px rgba(var(--accent-rgb), 0.1),
+    0 0 20px rgba(var(--accent-rgb), 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+}
+
+.searchBar input {
+  flex: 1;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 0.88rem;
+  outline: none;
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.searchBar input::placeholder {
+  color: var(--text-muted);
+}
+
+.activeRow td {
+  background: rgba(var(--accent-rgb), 0.06) !important;
+}
+
+.detailPanel {
+  position: sticky;
+  top: 32px;
+  padding: 28px;
+  height: fit-content;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--glass-bg-hover);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--glass-border-hover);
+  color: var(--text-primary);
+}
+
+.detailHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  margin-bottom: 16px;
+  box-shadow:
+    0 0 24px rgba(var(--accent-rgb), 0.15),
+    0 0 48px rgba(var(--accent-rgb), 0.06),
+    inset 0 0 0 1px rgba(var(--accent-rgb), 0.2);
+}
+
+.detailHeader h3 {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.detailGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detailRow {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.84rem;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.detailRow:last-child {
+  border-bottom: 0;
+}
+
+.detailRow svg {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.detailLabel {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.detailValue {
+  color: var(--text-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 14px;
+  background: rgba(14, 14, 22, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 100px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  width: fit-content;
+  margin-inline: auto;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 899px) {
+  .detailPanel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    border-radius: 0;
+    z-index: 200;
+    overflow-y: auto;
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.5);
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .searchBar {
+    margin-bottom: 16px;
+    height: 42px;
+    font-size: 0.84rem;
+  }
+
+  .detailPanel {
+    max-width: 100%;
+    border-left: none;
+  }
+}

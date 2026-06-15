@@ -1,0 +1,287 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Deep dark glass */
+  background: rgba(10, 10, 18, 0.8);
+  backdrop-filter: blur(40px) saturate(1.3);
+  -webkit-backdrop-filter: blur(40px) saturate(1.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.sidebar.collapsed {
+  width: 72px;
+}
+
+/* ── Brand ── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 24px 28px;
+}
+
+.collapsed .brand {
+  justify-content: center;
+  padding: 28px 0 28px;
+}
+
+.collapsed .brandInfo,
+.collapsed .navText,
+.collapsed .aiBadge {
+  display: none;
+}
+
+.logoMark {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #ffffff;
+  border-radius: 10px;
+  flex-shrink: 0;
+  box-shadow:
+    0 0 20px rgba(var(--accent-rgb), 0.25),
+    0 0 40px rgba(var(--accent-rgb), 0.1);
+  transition: box-shadow 0.3s ease;
+  animation: logoPulse 4s infinite alternate ease-in-out;
+}
+
+@keyframes logoPulse {
+  0% {
+    box-shadow:
+      0 0 15px rgba(var(--accent-rgb), 0.15),
+      0 0 30px rgba(var(--accent-rgb), 0.05);
+  }
+  100% {
+    box-shadow:
+      0 0 28px rgba(var(--accent-rgb), 0.45),
+      0 0 56px rgba(var(--accent-rgb), 0.18);
+  }
+}
+
+.logoMark:hover {
+  animation: none;
+  box-shadow:
+    0 0 28px rgba(var(--accent-rgb), 0.5),
+    0 0 56px rgba(var(--accent-rgb), 0.25);
+}
+
+.brandInfo { display: flex; flex-direction: column; }
+.brandName {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.brandSub {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+/* ── Navigation ── */
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  gap: 2px;
+}
+
+.collapsed .nav {
+  padding: 8px 10px;
+  align-items: center;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.86rem;
+  font-weight: 400;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  position: relative;
+}
+
+.collapsed .navItem {
+  justify-content: center;
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  gap: 0;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+}
+
+.navItem.active {
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--text-primary);
+  font-weight: 500;
+  border-radius: 24px;
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--accent-rgb), 0.18),
+    0 4px 16px rgba(var(--accent-rgb), 0.08);
+}
+
+/* ── Nav Icon ── */
+.navIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  opacity: 0.4;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.navItem.active .navIcon {
+  opacity: 1;
+  color: var(--accent);
+}
+.navItem:hover .navIcon { opacity: 0.7; }
+
+.navText { flex: 1; }
+
+/* ── AI Badge ── */
+.aiBadge {
+  margin-left: auto;
+  font-size: 0.58rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.06em;
+  box-shadow:
+    0 0 10px rgba(var(--accent-rgb), 0.3),
+    0 0 20px rgba(var(--accent-rgb), 0.1);
+}
+
+/* ── Collapse Button ── */
+.collapseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px auto 20px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.collapseBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--glass-border-hover);
+  color: var(--text-secondary);
+}
+
+/* ── Unused (preserved for compatibility) ── */
+.bottomSection {
+  padding: 16px;
+  margin-top: auto;
+  border-top: 1px solid var(--glass-border);
+}
+.statusCard { display: flex; flex-direction: column; gap: 10px; }
+.statusRow { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; }
+.statusDot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.statusDot.online { background: var(--success); box-shadow: 0 0 8px rgba(52, 211, 153, 0.4); }
+.statusDot.offline { background: var(--text-muted); opacity: 0.4; }
+.statusLabel { color: var(--text-muted); font-weight: 500; }
+.statusValue { margin-left: auto; color: var(--text-secondary); font-weight: 400; }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE — Bottom Tab Bar
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .sidebar,
+  .sidebar.collapsed {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 72px;
+    overflow: visible;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-right: 0;
+    background: rgba(10, 10, 18, 0.9);
+    backdrop-filter: blur(40px) saturate(1.3);
+    -webkit-backdrop-filter: blur(40px) saturate(1.3);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .brand,
+  .collapseBtn {
+    display: none;
+  }
+
+  .nav,
+  .collapsed .nav {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(56px, 1fr));
+    align-items: stretch;
+    gap: 0;
+    padding: 6px 4px;
+    overflow-x: auto;
+  }
+
+  .navItem,
+  .collapsed .navItem {
+    width: auto;
+    height: 60px;
+    padding: 6px 4px;
+    border-radius: 8px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.6rem;
+  }
+
+  .navIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .navText {
+    display: block !important;
+    flex: none;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .aiBadge { display: none; }
+}
