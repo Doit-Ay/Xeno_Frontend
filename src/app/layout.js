@@ -15,13 +15,7 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        {/* Ambient gradient orbs for glass depth */}
-        <div className="ambient-bg" aria-hidden="true">
-          <div className="ambient-orb ambient-orb--1" />
-          <div className="ambient-orb ambient-orb--2" />
-          <div className="ambient-orb ambient-orb--3" />
-          <div className="ambient-orb ambient-orb--4" />
-        </div>
+
 
         <div className="app-layout">
           <Sidebar />

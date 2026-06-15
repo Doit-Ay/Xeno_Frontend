@@ -61,7 +61,7 @@ export default function Analytics() {
             key={m.label} 
             className="card"
             style={{ 
-              boxShadow: `inset 0 2px 0 ${m.bg}, var(--glass-glow), var(--glass-shadow)`,
+              borderLeft: `4px solid ${m.color}`,
               animationDelay: `${i * 60}ms`,
               animation: 'fadeIn 0.4s cubic-bezier(0.4,0,0.2,1) forwards',
               opacity: 0,
@@ -73,8 +73,13 @@ export default function Analytics() {
               </div>
               <div className="text-muted text-xs uppercase font-semibold tracking-wider">{m.label}</div>
             </div>
-            <div style={{ fontFamily: "'Outfit', 'Inter', sans-serif", fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
-              {m.value.toLocaleString('en-IN')}
+            <div className="flex items-end justify-between">
+              <div style={{ fontFamily: "'Outfit', 'Inter', sans-serif", fontSize: '2.4rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                {m.value.toLocaleString('en-IN')}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--success)', fontWeight: 600, paddingBottom: '4px' }}>
+                +12% ↑
+              </div>
             </div>
           </div>
         ))}
@@ -94,18 +99,21 @@ export default function Analytics() {
 
         <div className="flex-col gap-14">
           <div className="card h-full">
-            <h3 className="mb-16 text-lg">Delivery rates</h3>
-            <div className="flex-col gap-12">
+            <h3 className="mb-16 text-lg font-bold">Delivery rates</h3>
+            <div className="flex-col">
               <RateRow label="Delivery rate" value={perf.deliveryRate} />
               <RateRow label="Open rate" value={Math.round(((perf.totalOpened||0)/totalSent)*100)||0} />
-              <RateRow label="Click rate" value={Math.round(((perf.totalClicked||0)/totalSent)*100)||0} />
+              <RateRow label="Click rate" value={Math.round(((perf.totalClicked||0)/totalSent)*100)||0} isLast={true} />
             </div>
           </div>
           
-          <div className="card" style={{ background: 'rgba(var(--accent-rgb), 0.05)', borderColor: 'rgba(var(--accent-rgb), 0.1)' }}>
-            <h3 className="mb-8 text-lg" style={{ color: 'var(--accent)' }}>AI Insight</h3>
-            <p className="text-sm text-secondary">
-              Your recent WhatsApp campaigns have a 24% higher engagement rate than your SMS campaigns. Consider shifting budget to WhatsApp for the upcoming Summer Sale.
+          <div className="card" style={{ background: '#ffffff', borderColor: '#ffffff', color: '#000000', boxShadow: '0 8px 32px rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center gap-8 mb-12">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <h3 className="text-lg font-bold" style={{ color: '#000000' }}>AI Insight</h3>
+            </div>
+            <p className="text-sm font-medium" style={{ color: '#333333', lineHeight: 1.6 }}>
+              Your recent WhatsApp campaigns have a <strong>24% higher engagement rate</strong> than your SMS campaigns. Consider shifting budget to WhatsApp for the upcoming Summer Sale.
             </p>
           </div>
         </div>
@@ -119,21 +127,21 @@ function FunnelBar({ label, count, total, color }) {
   return (
     <div>
       <div className="flex justify-between mb-8 text-sm">
-        <span className="text-secondary">{label}</span>
-        <span className="font-semibold tabular-nums">{count.toLocaleString('en-IN')} <span className="text-muted ml-4">({pct}%)</span></span>
+        <span className="text-secondary font-medium">{label}</span>
+        <span className="font-semibold tabular-nums text-primary" style={{ color: '#fff' }}>{count.toLocaleString('en-IN')} <span className="text-muted ml-4">({pct}%)</span></span>
       </div>
-      <div style={{ height: 8, background: 'rgba(255,255,255,0.04)', borderRadius: 4, overflow: 'hidden' }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 4, transition: 'width 1s cubic-bezier(0.4,0,0.2,1)', boxShadow: `0 0 12px ${color}` }} />
+      <div style={{ height: 12, background: 'var(--bg-secondary)', borderRadius: 100, overflow: 'hidden', border: '1px solid var(--border)' }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 100, transition: 'width 1s cubic-bezier(0.4,0,0.2,1)' }} />
       </div>
     </div>
   );
 }
 
-function RateRow({ label, value }) {
+function RateRow({ label, value, isLast }) {
   return (
-    <div className="flex items-center justify-between p-16 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <span className="text-secondary">{label}</span>
-      <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.2rem', fontWeight: 600 }}>{value}%</span>
+    <div className="flex items-center justify-between" style={{ padding: '16px 0', borderBottom: isLast ? 'none' : '1px solid var(--border)' }}>
+      <span className="text-secondary font-medium">{label}</span>
+      <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.4rem', color: '#fff', fontWeight: 700 }}>{value}%</span>
     </div>
   );
 }

@@ -49,12 +49,12 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: #ffffff;
+  color: #000000;
   border-radius: 10px;
   flex-shrink: 0;
   box-shadow:
-    0 0 20px rgba(var(--accent-rgb), 0.25),
-    0 0 40px rgba(var(--accent-rgb), 0.1);
+    0 0 20px rgba(var(--accent-rgb), 0.15),
+    0 0 40px rgba(var(--accent-rgb), 0.05);
   transition: box-shadow 0.3s ease;
   animation: logoPulse 4s infinite alternate ease-in-out;
 }
@@ -177,13 +177,13 @@
   font-size: 0.58rem;
   font-weight: 700;
   background: var(--accent);
-  color: #ffffff;
+  color: #000000;
   padding: 2px 8px;
   border-radius: 5px;
   letter-spacing: 0.06em;
   box-shadow:
-    0 0 10px rgba(var(--accent-rgb), 0.3),
-    0 0 20px rgba(var(--accent-rgb), 0.1);
+    0 0 10px rgba(var(--accent-rgb), 0.1),
+    0 0 20px rgba(var(--accent-rgb), 0.05);
 }
 
 /* ── Collapse Button ── */

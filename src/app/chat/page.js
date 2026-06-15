@@ -191,34 +191,61 @@ export default function Chat() {
 
   return (
     <div className={styles.chatContainer}>
+      <div className={styles.chatSidebar}>
+        <button className={styles.newChatBtn} onClick={clearChat}>
+          + New Chat
+        </button>
+        <div className={styles.sidebarTitle}>RECENT CONVERSATIONS</div>
+        <div className={styles.historyList}>
+          <div className={styles.historyItem}>
+            <Icon d={ICONS.message} size={14} />
+            <div className={styles.historyItemContent}>
+              <div className={styles.historyItemTitle}>tell me customer who have purc...</div>
+              <div className={styles.historyItemMeta}>15/6/2026 • 2 msgs</div>
+            </div>
+          </div>
+          <div className={styles.historyItem}>
+            <Icon d={ICONS.message} size={14} />
+            <div className={styles.historyItemContent}>
+              <div className={styles.historyItemTitle}>tell me user which have not bee...</div>
+              <div className={styles.historyItemMeta}>15/6/2026 • 2 msgs</div>
+            </div>
+          </div>
+          <div className={styles.historyItem}>
+            <Icon d={ICONS.message} size={14} />
+            <div className={styles.historyItemContent}>
+              <div className={styles.historyItemTitle}>Hi, what can you help me with?</div>
+              <div className={styles.historyItemMeta}>15/6/2026 • 2 msgs</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={styles.chatShell}>
         
         <header className={styles.chatHeader}>
           <div className={styles.chatTitle}>
-            <div className={styles.sparkIcon}><Icon d={ICONS.spark} size={16} /></div>
+            <div className={styles.sparkIcon}><Icon d={ICONS.spark} size={20} /></div>
             <div>
-              <h2>Luxe Copilot</h2>
-              <p>AI assistant for your CRM tasks</p>
+              <h2>AI Copilot</h2>
+              <p>Describe what you want — segments, messages, and campaigns.</p>
             </div>
           </div>
-          {messages.length > 0 && (
-            <button className="btn btn-ghost btn-sm" onClick={clearChat}>
-              <Icon d={ICONS.clear} size={14} /> Clear chat
-            </button>
-          )}
         </header>
 
         <div className={styles.messageArea}>
           {messages.length === 0 ? (
             <div className={styles.welcomeState}>
-              <div className={styles.welcomeIcon}><Icon d={ICONS.spark} size={32} /></div>
+              <div className={styles.welcomeIcon}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
               <h2>How can I help you today?</h2>
-              <p>Ask me anything about your customers, campaign performance, or marketing strategies.</p>
+              <p>I can create customer segments, draft personalised messages,<br/>recommend campaign strategies, and more.</p>
               
               <div className={styles.suggestionsGrid}>
                 {SUGGESTIONS.map((s, i) => (
                   <button key={i} className={styles.welcomeCard} onClick={() => handleSend(s.text)}>
-                    <Icon d={s.icon} />
                     <span>{s.text}</span>
                   </button>
                 ))}
