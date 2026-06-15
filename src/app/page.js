@@ -25,7 +25,7 @@ function getGreeting() {
   return 'Good evening';
 }
 
-function Sparkline({ data, color }) {
+function Sparkline({ data, color, id }) {
   if (!data || data.length === 0) return null;
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -36,19 +36,18 @@ function Sparkline({ data, color }) {
     return `${x},${y}`;
   }).join(' ');
 
-  // Use a fallback gradient ID if color contains special chars
-  const gradientId = `grad-${Math.random().toString(36).substr(2, 9)}`;
+  const gradientId = `spark-grad-${id}`;
 
   return (
     <div className={styles.sparklineContainer}>
       <svg className={styles.sparklineSvg} viewBox="0 -10 100 120" preserveAspectRatio="none">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.4" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.25" />
             <stop offset="100%" stopColor={color} stopOpacity="0" />
           </linearGradient>
         </defs>
-        <polygon points={`0,100 ${points} 100,100`} fill={`url(#${gradientId})`} opacity="0.6" />
+        <polygon points={`0,100 ${points} 100,100`} fill={`url(#${gradientId})`} opacity="0.5" />
         <polyline points={points} className={styles.sparklinePath} stroke={color} />
       </svg>
     </div>
@@ -109,6 +108,12 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {/* Summary Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', marginBottom: 4, fontSize: '.85rem', color: 'var(--text-muted)' }}>
+        <span>You have <strong style={{ color: '#fff' }}>{(data?.totalCustomers || 0).toLocaleString('en-IN')}</strong> customers across <strong style={{ color: '#fff' }}>{data?.totalSegments || 0}</strong> segments with <strong style={{ color: '#fff' }}>{data?.totalCampaigns || 0}</strong> campaigns.</span>
+      </div>
+
+
       {/* Advanced Bento Grid */}
       <div className={styles.bentoGrid}>
         
@@ -131,24 +136,24 @@ export default function Dashboard() {
               </div>
               <div className="dashboard-metric-note">{metric.note}</div>
             </div>
-            <Sparkline data={metric.spark} color={metric.accent} />
+            <Sparkline data={metric.spark} color={metric.accent} id={metric.label.toLowerCase().replace(/\s+/g, '-')} />
           </div>
         ))}
 
         {/* Middle Row: AI Insight (span 2) + Funnel (span 2) */}
         <div className={`panel ${styles.insightPanel} animate-slideUp delay-2`}>
-          <div>
-            <div className={styles.insightHeader}>
-              <div className={styles.insightIcon}><Icon d={ICONS.spark} size={20} /></div>
-              <div className={styles.insightTitle}>AI Copilot Insight</div>
-            </div>
-            <div className={styles.insightBody}>
-              <strong style={{ color: 'var(--text-primary)' }}>High churn risk detected.</strong> You have 142 VIP customers who haven't made a purchase in over 45 days. Historically, a targeted intervention now yields a 28% recovery rate.
-            </div>
+          <div className={styles.insightHeader}>
+            <div className={styles.insightIcon}><Icon d={ICONS.spark} size={16} /></div>
+            <div className={styles.insightTitle}>AI Copilot Insight</div>
           </div>
-          <Link href="/campaigns" className="btn btn-primary w-full">
-            <Icon d={ICONS.spark} /> Draft Win-back Campaign
-          </Link>
+          <div className={styles.insightBody}>
+            <strong style={{ color: '#ffffff', fontWeight: 700 }}>High churn risk detected.</strong> You have 142 VIP customers who haven{String.fromCharCode(8217)}t made a purchase in over 45 days. Historically, a targeted intervention now yields a 28% recovery rate.
+          </div>
+          <div>
+            <Link href="/campaigns" className="btn" style={{ background: '#ffffff', color: '#000000', border: 'none', padding: '10px 20px', borderRadius: '100px', fontWeight: 600 }}>
+              <Icon d={ICONS.spark} /> Draft Win-back Campaign
+            </Link>
+          </div>
         </div>
 
         <section className={`panel ${styles.funnelPanel} animate-slideUp delay-2`}>
@@ -186,9 +191,10 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="campaign-list">
-              {campaigns.map(campaign => (
-                <div className="campaign-list-row" key={campaign.id}>
-                  <div className="campaign-list-main">
+              {campaigns.map((campaign, idx) => (
+                <div className="campaign-list-row" key={campaign.id} style={{ cursor: 'pointer' }}>
+                  <div style={{ width: 28, fontSize: '.78rem', color: 'var(--text-muted)', fontWeight: 500 }}>{idx + 1}</div>
+                  <div className="campaign-list-main" style={{ flex: 1 }}>
                     <div className="campaign-list-name">{campaign.name}</div>
                     <div className="campaign-list-meta">
                       <span style={{ textTransform: 'capitalize' }}>{campaign.channel}</span>
@@ -198,7 +204,10 @@ export default function Dashboard() {
                   <div className="campaign-list-result">
                     <StatusBadge status={campaign.status} />
                     <strong>{campaign.totalDelivered?.toLocaleString('en-IN') || 0}</strong>
-                    <span>delivered</span>
+                    <span>/ {campaign.totalSent?.toLocaleString('en-IN') || 0}</span>
+                    <span style={{ color: 'var(--success)', fontWeight: 600, fontSize: '.8rem' }}>
+                      {campaign.totalSent > 0 ? `${Math.round((campaign.totalDelivered / campaign.totalSent) * 100)}%` : '—'}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -224,11 +233,16 @@ function StatusBadge({ status }) {
 
 function FunnelRow({ label, value, max }) {
   const percentage = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  const pctText = `${Math.round(percentage)}%`;
   return (
     <div className="funnel-row">
       <span className="funnel-label">{label}</span>
-      <div className="funnel-track">
-        <div className="funnel-fill" style={{ width: `${percentage}%` }} />
+      <div className="funnel-track" style={{ height: 16 }}>
+        <div className="funnel-fill" style={{ width: `${percentage}%`, position: 'relative' }}>
+          {percentage >= 20 && (
+            <span style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', fontSize: '.65rem', fontWeight: 700, color: '#000' }}>{pctText}</span>
+          )}
+        </div>
       </div>
       <span className="funnel-value">{value.toLocaleString('en-IN')}</span>
     </div>

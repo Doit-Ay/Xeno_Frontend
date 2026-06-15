@@ -25,7 +25,8 @@ export default function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
   const [segments, setSegments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('list'); // list, create
+  const [view, setView] = useState('list'); // list, create, details
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
   
   // Create state
   const [name, setName] = useState('');
@@ -83,6 +84,127 @@ export default function Campaigns() {
       console.error(e);
     }
   };
+
+  const handleViewCampaign = async (id) => {
+    setLoading(true);
+    setView('details');
+    try {
+      const data = await api.getCampaign(id);
+      setSelectedCampaign(data);
+    } catch (e) {
+      console.error(e);
+      setView('list');
+    }
+    setLoading(false);
+  };
+
+  if (view === 'details' && loading) {
+    return (
+      <div className="animate-fadeIn">
+        <div className="page-header">
+          <div className="page-header-row">
+            <div>
+              <button className="btn btn-ghost btn-sm mb-4" onClick={() => setView('list')}>{String.fromCharCode(8592)} Back to campaigns</button>
+              <div className="skeleton" style={{ width: 240, height: 28, borderRadius: 6, marginBottom: 8 }} />
+              <div className="skeleton" style={{ width: 320, height: 14, borderRadius: 4 }} />
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 'var(--radius)' }} />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'details' && selectedCampaign) {
+    const c = selectedCampaign;
+    const sent = c.totalSent || c._count?.communications || 0;
+    const delivered = c.totalDelivered || 0;
+    const failed = c.totalFailed || 0;
+    const pending = c.totalPending || 0;
+    const deliveryRate = sent > 0 ? ((delivered / sent) * 100).toFixed(1) : '0';
+
+    return (
+      <div className="animate-fadeIn">
+        <div className="page-header">
+          <div className="page-header-row">
+            <div>
+              <button className="btn btn-ghost btn-sm mb-4" onClick={() => setView('list')}>{String.fromCharCode(8592)} Back to campaigns</button>
+              <h1>{c.name}</h1>
+              <p style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <StatusBadge status={c.status} />
+                <span style={{ color: 'var(--text-muted)' }}>{String.fromCharCode(183)} {c.channel?.toUpperCase()}</span>
+                <span style={{ color: 'var(--text-muted)' }}>{String.fromCharCode(183)} {new Date(c.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginTop: 16 }}>
+          {[
+            { label: 'Total Sent', value: sent, accent: '#4A90E2' },
+            { label: 'Delivered', value: delivered, accent: '#34C759' },
+            { label: 'Failed', value: failed, accent: '#FF3B30' },
+            { label: 'Delivery Rate', value: `${deliveryRate}%`, accent: '#ffffff' },
+          ].map(s => (
+            <div key={s.label} className="panel" style={{ padding: 20, borderLeft: `3px solid ${s.accent}` }}>
+              <div style={{ fontSize: '.78rem', color: 'var(--text-muted)', marginBottom: 6 }}>{s.label}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: '#fff' }}>{typeof s.value === 'number' ? s.value.toLocaleString('en-IN') : s.value}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 14 }}>
+          {/* Message Content */}
+          <div className="panel" style={{ padding: 20 }}>
+            <div style={{ fontSize: '.82rem', fontWeight: 600, marginBottom: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Message Content</div>
+            <div style={{ fontSize: '.9rem', lineHeight: 1.7, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', padding: 16, background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              {c.messageTemplate || c.content || 'No message content.'}
+            </div>
+            {c.segment && (
+              <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontSize: '.75rem', color: 'var(--text-muted)', marginBottom: 4 }}>TARGET SEGMENT</div>
+                <div style={{ fontSize: '.9rem', fontWeight: 600 }}>{c.segment.name}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Communications Log */}
+          <div className="panel" style={{ padding: 0 }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ fontSize: '.82rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Delivery Log ({c._count?.communications || 0})</div>
+            </div>
+            <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.85rem' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: '.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>Customer</th>
+                    <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: '.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>Contact</th>
+                    <th style={{ textAlign: 'right', padding: '10px 16px', fontSize: '.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {c.communications?.length > 0 ? c.communications.map(comm => (
+                    <tr key={comm.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '12px 16px' }}>{comm.customer?.name || 'Unknown'}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>{comm.customer?.email || comm.customer?.phone || '-'}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}><StatusBadge status={comm.status} /></td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={3} style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)' }}>No delivery logs yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (view === 'create') {
     return (
@@ -225,7 +347,7 @@ export default function Campaigns() {
               </tr>
             ) : (
               campaigns.map((c, i) => (
-                <tr key={c.id} style={{ animation: `fadeIn 0.4s ease ${i * 0.05}s forwards`, opacity: 0 }}>
+                <tr key={c.id} onClick={() => handleViewCampaign(c.id)} style={{ animation: `fadeIn 0.4s ease ${i * 0.05}s forwards`, opacity: 0, cursor: 'pointer' }}>
                   <td className="font-semibold">{c.name}</td>
                   <td><StatusBadge status={c.status} /></td>
                   <td className="text-secondary">{c.segment?.name || '—'}</td>

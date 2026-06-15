@@ -21,7 +21,13 @@ const ICONS = {
 export default function Segments() {
   const [segments, setSegments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('list'); // list, build
+  const [view, setView] = useState('list'); // list, build, details
+  
+  // Details state
+  const [selectedSegment, setSelectedSegment] = useState(null);
+  const [segmentDetails, setSegmentDetails] = useState(null);
+  const [detailsPage, setDetailsPage] = useState(1);
+  const [paginationLoading, setPaginationLoading] = useState(false);
   
   // Builder state
   const [name, setName] = useState('');
@@ -77,6 +83,34 @@ export default function Segments() {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleViewSegment = async (id) => {
+    setLoading(true);
+    setView('details');
+    setSelectedSegment(id);
+    setDetailsPage(1);
+    try {
+      const data = await api.getSegment(id, 1, 100);
+      setSegmentDetails(data);
+    } catch (e) {
+      console.error(e);
+      setView('list');
+    }
+    setLoading(false);
+  };
+
+  const fetchSegmentPage = async (page) => {
+    if (!selectedSegment) return;
+    setPaginationLoading(true);
+    try {
+      const data = await api.getSegment(selectedSegment, page, 100);
+      setSegmentDetails(data);
+      setDetailsPage(page);
+    } catch (e) {
+      console.error(e);
+    }
+    setPaginationLoading(false);
   };
 
   if (view === 'build') {
@@ -186,6 +220,108 @@ export default function Segments() {
     );
   }
 
+  if (view === 'details' && loading) {
+    return (
+      <div className="animate-fadeIn">
+        <div className="page-header">
+          <div className="page-header-row">
+            <div>
+              <button className="btn btn-ghost btn-sm mb-4" onClick={() => setView('list')}>← Back to list</button>
+              <div className="skeleton" style={{ width: 200, height: 28, borderRadius: 6, marginBottom: 8 }} />
+              <div className="skeleton" style={{ width: 300, height: 14, borderRadius: 4 }} />
+            </div>
+          </div>
+        </div>
+        <div className="panel mt-16" style={{ padding: 20 }}>
+          {[1,2,3,4,5].map(i => (
+            <div key={i} className="skeleton" style={{ height: 48, borderRadius: 6, marginBottom: 8 }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'details' && segmentDetails) {
+    return (
+      <div className="animate-fadeIn">
+        <div className="page-header">
+          <div className="page-header-row">
+            <div>
+              <button className="btn btn-ghost btn-sm mb-4" onClick={() => setView('list')}>← Back to list</button>
+              <h1>{segmentDetails.name}</h1>
+              <p>{segmentDetails.description || 'Segment details and customer list.'}</p>
+            </div>
+            <div className="flex gap-8">
+              <Link href="/campaigns" className="btn btn-primary">
+                <Icon d={ICONS.spark} /> Create Campaign
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel mt-16">
+          <div className="panel-header">
+            <div>
+              <div className="panel-title">Customers ({segmentDetails.customerCount || 0})</div>
+              <div className="panel-subtitle">Showing page {detailsPage} of {segmentDetails.pagination?.totalPages || 1}</div>
+            </div>
+          </div>
+          
+          <div className={styles.tableWrap} style={{ opacity: paginationLoading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+            <table className={styles.customerTable}>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th className="text-right">Total Spent</th>
+                </tr>
+              </thead>
+              <tbody>
+                {segmentDetails.customerPreview?.length > 0 ? (
+                  segmentDetails.customerPreview.map((c, idx) => (
+                    <tr key={c.id}>
+                      <td className="text-muted">{(detailsPage - 1) * 100 + idx + 1}</td>
+                      <td>{c.name}</td>
+                      <td className="text-muted">{c.email}</td>
+                      <td className="text-muted">{c.phone || '-'}</td>
+                      <td className="text-right font-medium">{String.fromCharCode(8377)}{c.totalSpent?.toLocaleString('en-IN') || 0}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="text-center text-muted py-16">No customers match this segment.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {(segmentDetails.pagination?.totalPages || 1) > 1 && (
+            <div className={styles.paginationBar}>
+              <button
+                className={styles.pageBtn}
+                disabled={detailsPage <= 1 || paginationLoading}
+                onClick={() => fetchSegmentPage(detailsPage - 1)}
+              >
+                ← Previous
+              </button>
+              <span className={styles.pageInfo}>Page {detailsPage} of {segmentDetails.pagination.totalPages}</span>
+              <button
+                className={styles.pageBtn}
+                disabled={detailsPage >= segmentDetails.pagination.totalPages || paginationLoading}
+                onClick={() => fetchSegmentPage(detailsPage + 1)}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fadeIn">
       <div className="page-header">
@@ -214,7 +350,7 @@ export default function Segments() {
       ) : (
         <div className={styles.segmentList}>
           {segments.map(seg => (
-            <div key={seg.id} className={styles.segmentCard}>
+            <div key={seg.id} className={styles.segmentCard} onClick={() => handleViewSegment(seg.id)} style={{ cursor: 'pointer' }}>
               <div className={styles.segmentCardHeader}>
                 <h3 className={styles.segmentName}>{seg.name}</h3>
                 {seg.aiGenerated && <span className={styles.aiBadge}>AI</span>}
@@ -230,12 +366,9 @@ export default function Segments() {
                   <span className={styles.segmentCountLabel}>customers</span>
                 </div>
                 
-                <div className={styles.campaignStats}>
-                  <span>{seg._count?.campaigns || 0} campaigns</span>
-                  <Link href="/campaigns">
-                    <button className={styles.createCampBtn}>+ Create Campaign</button>
-                  </Link>
-                </div>
+                <Link href="/campaigns" onClick={(e) => e.stopPropagation()} className={styles.createCampBtn}>
+                  <Icon d={ICONS.plus} size={14} /> Create Campaign
+                </Link>
               </div>
             </div>
           ))}

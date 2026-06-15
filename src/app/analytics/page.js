@@ -16,6 +16,27 @@ const ICONS = {
   alert: 'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01',
 };
 
+/* ── Circular progress ring for rate cards ── */
+function CircleIndicator({ value, color, size = 52 }) {
+  const strokeWidth = 4;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#1a1a1a" strokeWidth={strokeWidth} />
+      <circle
+        cx={size / 2} cy={size / 2} r={radius} fill="none"
+        stroke={color} strokeWidth={strokeWidth}
+        strokeDasharray={circumference} strokeDashoffset={offset}
+        strokeLinecap="butt"
+        style={{ transition: 'stroke-dashoffset 1s ease' }}
+      />
+    </svg>
+  );
+}
+
 export default function Analytics() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,11 +53,33 @@ export default function Analytics() {
   const perf = data?.performance || {};
   const totalSent = perf.totalSent || 1; // avoid div by 0
 
+  const deliveryRate = perf.deliveryRate || 0;
+  const openRate = Math.round(((perf.totalOpened || 0) / totalSent) * 100) || 0;
+  const clickRate = Math.round(((perf.totalClicked || 0) / totalSent) * 100) || 0;
+
   const metrics = [
-    { label: 'Total sent', value: perf.totalSent || 0, icon: ICONS.send, color: 'var(--accent)', bg: 'rgba(var(--accent-rgb), 0.1)' },
-    { label: 'Opened', value: perf.totalOpened || 0, icon: ICONS.eye, color: 'var(--info)', bg: 'rgba(49, 130, 206, 0.1)' },
-    { label: 'Clicked', value: perf.totalClicked || 0, icon: ICONS.click, color: 'var(--warning)', bg: 'rgba(221, 107, 32, 0.1)' },
-    { label: 'Failed', value: perf.totalFailed || 0, icon: ICONS.alert, color: 'var(--danger)', bg: 'rgba(229, 62, 62, 0.1)' },
+    { label: 'Total sent', value: perf.totalSent || 0, icon: ICONS.send, color: '#ffffff' },
+    { label: 'Opened', value: perf.totalOpened || 0, icon: ICONS.eye, color: '#3b82f6' },
+    { label: 'Clicked', value: perf.totalClicked || 0, icon: ICONS.click, color: '#f59e0b' },
+    { label: 'Failed', value: perf.totalFailed || 0, icon: ICONS.alert, color: '#ef4444' },
+  ];
+
+  const summaryStats = [
+    { label: 'Delivery Rate', value: deliveryRate, borderColor: '#22c55e' },
+    { label: 'Open Rate', value: openRate, borderColor: '#3b82f6' },
+    { label: 'Click Rate', value: clickRate, borderColor: '#f59e0b' },
+  ];
+
+  const rateCards = [
+    { label: 'Delivery rate', value: deliveryRate, color: '#22c55e' },
+    { label: 'Open rate', value: openRate, color: '#3b82f6' },
+    { label: 'Click rate', value: clickRate, color: '#f59e0b' },
+  ];
+
+  const channels = [
+    { label: 'WhatsApp', value: 65, color: '#22c55e' },
+    { label: 'SMS', value: 20, color: '#3b82f6' },
+    { label: 'Email', value: 15, color: '#a855f7' },
   ];
 
   return (
@@ -55,30 +98,33 @@ export default function Analytics() {
         </div>
       </div>
 
+
+      {/* ── Metric cards row ── */}
       <div className="stats-grid">
         {metrics.map((m, i) => (
-          <div 
-            key={m.label} 
+          <div
+            key={m.label}
             className="card"
-            style={{ 
-              borderLeft: `4px solid ${m.color}`,
+            style={{
+              borderLeft: `3px solid ${m.color}`,
+              border: '1px solid #333',
+              borderLeftWidth: 3,
+              borderLeftColor: m.color,
+              background: '#0d0d0d',
               animationDelay: `${i * 60}ms`,
               animation: 'fadeIn 0.4s cubic-bezier(0.4,0,0.2,1) forwards',
               opacity: 0,
             }}
           >
             <div className="flex items-center gap-12 mb-16">
-              <div style={{ width: 32, height: 32, borderRadius: '8px', background: m.bg, color: m.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 32, height: 32, background: '#1a1a1a', border: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', color: m.color }}>
                 <Icon d={m.icon} />
               </div>
-              <div className="text-muted text-xs uppercase font-semibold tracking-wider">{m.label}</div>
+              <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#888', fontWeight: 600 }}>{m.label}</div>
             </div>
             <div className="flex items-end justify-between">
               <div style={{ fontFamily: "'Outfit', 'Inter', sans-serif", fontSize: '2.4rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
                 {m.value.toLocaleString('en-IN')}
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--success)', fontWeight: 600, paddingBottom: '4px' }}>
-                +12% ↑
               </div>
             </div>
           </div>
@@ -86,33 +132,74 @@ export default function Analytics() {
       </div>
 
       <div className="grid-2 mt-24">
-        <div className="card">
-          <h3 className="mb-24 text-lg">Conversion funnel</h3>
+        {/* ── 2. Conversion Funnel (improved bars) ── */}
+        <div className="card" style={{ background: '#0d0d0d', border: '1px solid #333' }}>
+          <h3 className="mb-24 text-lg" style={{ color: '#fff', fontWeight: 700 }}>Conversion funnel</h3>
           <div className="flex-col gap-24">
-            <FunnelBar label="Sent" count={perf.totalSent || 0} total={totalSent} color="var(--accent)" />
-            <FunnelBar label="Delivered" count={perf.totalDelivered || 0} total={totalSent} color="var(--success)" />
-            <FunnelBar label="Opened" count={perf.totalOpened || 0} total={totalSent} color="var(--info)" />
-            <FunnelBar label="Read" count={perf.totalRead || 0} total={totalSent} color="var(--warning)" />
-            <FunnelBar label="Clicked" count={perf.totalClicked || 0} total={totalSent} color="#a064f0" />
+            <FunnelBar label="Sent" count={perf.totalSent || 0} total={totalSent} color="#ffffff" />
+            <FunnelBar label="Delivered" count={perf.totalDelivered || 0} total={totalSent} color="#22c55e" />
+            <FunnelBar label="Opened" count={perf.totalOpened || 0} total={totalSent} color="#3b82f6" />
+            <FunnelBar label="Read" count={perf.totalRead || 0} total={totalSent} color="#f59e0b" />
+            <FunnelBar label="Clicked" count={perf.totalClicked || 0} total={totalSent} color="#a855f7" />
+          </div>
+
+          {/* ── 5. Channel Breakdown ── */}
+          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid #333' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Channel breakdown</h4>
+            <div style={{ display: 'flex', height: 28, overflow: 'hidden', border: '1px solid #333' }}>
+              {channels.map((ch) => (
+                <div key={ch.label} style={{
+                  width: `${ch.value}%`, background: ch.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.7rem', fontWeight: 700, color: '#000', letterSpacing: '0.02em',
+                  transition: 'width 0.8s ease',
+                }}>
+                  {ch.value >= 15 ? `${ch.label} ${ch.value}%` : ''}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 20, marginTop: 12 }}>
+              {channels.map((ch) => (
+                <div key={ch.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 10, height: 10, background: ch.color }} />
+                  <span style={{ fontSize: '0.75rem', color: '#888', fontWeight: 500 }}>{ch.label} — {ch.value}%</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="flex-col gap-14">
-          <div className="card h-full">
-            <h3 className="mb-16 text-lg font-bold">Delivery rates</h3>
-            <div className="flex-col">
-              <RateRow label="Delivery rate" value={perf.deliveryRate} />
-              <RateRow label="Open rate" value={Math.round(((perf.totalOpened||0)/totalSent)*100)||0} />
-              <RateRow label="Click rate" value={Math.round(((perf.totalClicked||0)/totalSent)*100)||0} isLast={true} />
+          {/* ── 3. Delivery Rates as cards with circular indicator ── */}
+          <div className="card h-full" style={{ background: '#0d0d0d', border: '1px solid #333', padding: 0 }}>
+            <h3 style={{ padding: '20px 24px 0', marginBottom: 4, fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>Delivery rates</h3>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {rateCards.map((r, i) => (
+                <div key={r.label} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '16px 24px',
+                  borderBottom: i < rateCards.length - 1 ? '1px solid #222' : 'none',
+                  borderLeft: `3px solid ${r.color}`,
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#888', fontWeight: 600, marginBottom: 4 }}>{r.label}</div>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.6rem', color: '#fff', fontWeight: 700, lineHeight: 1 }}>{r.value}%</div>
+                  </div>
+                  <CircleIndicator value={r.value} color={r.color} />
+                </div>
+              ))}
             </div>
           </div>
-          
-          <div className="card" style={{ background: '#ffffff', borderColor: '#ffffff', color: '#000000', boxShadow: '0 8px 32px rgba(255,255,255,0.1)' }}>
+
+          {/* ── 4. AI Insight card (more padding, breathable text) ── */}
+          <div className="card" style={{
+            background: '#ffffff', border: '1px solid #ffffff', color: '#000000',
+            padding: 24,
+          }}>
             <div className="flex items-center gap-8 mb-12">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              <h3 className="text-lg font-bold" style={{ color: '#000000' }}>AI Insight</h3>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#000000' }}>AI Insight</h3>
             </div>
-            <p className="text-sm font-medium" style={{ color: '#333333', lineHeight: 1.6 }}>
+            <p style={{ color: '#333333', lineHeight: 1.7, fontSize: '0.875rem', fontWeight: 500 }}>
               Your recent WhatsApp campaigns have a <strong>24% higher engagement rate</strong> than your SMS campaigns. Consider shifting budget to WhatsApp for the upcoming Summer Sale.
             </p>
           </div>
@@ -122,26 +209,28 @@ export default function Analytics() {
   );
 }
 
+/* ── Improved Funnel Bar (16px, inline label) ── */
 function FunnelBar({ label, count, total, color }) {
   const pct = Math.round((count / total) * 100) || 0;
   return (
     <div>
       <div className="flex justify-between mb-8 text-sm">
-        <span className="text-secondary font-medium">{label}</span>
-        <span className="font-semibold tabular-nums text-primary" style={{ color: '#fff' }}>{count.toLocaleString('en-IN')} <span className="text-muted ml-4">({pct}%)</span></span>
+        <span style={{ color: '#aaa', fontWeight: 500 }}>{label}</span>
+        <span style={{ fontWeight: 600, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>
+          {count.toLocaleString('en-IN')} <span style={{ color: '#666', marginLeft: 4 }}>({pct}%)</span>
+        </span>
       </div>
-      <div style={{ height: 12, background: 'var(--bg-secondary)', borderRadius: 100, overflow: 'hidden', border: '1px solid var(--border)' }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 100, transition: 'width 1s cubic-bezier(0.4,0,0.2,1)' }} />
+      <div style={{ height: 16, background: '#1a1a1a', overflow: 'hidden', border: '1px solid #333', position: 'relative' }}>
+        <div style={{
+          width: `${pct}%`, height: '100%', background: color,
+          transition: 'width 1s cubic-bezier(0.4,0,0.2,1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 6,
+        }}>
+          {pct >= 20 && (
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#000', lineHeight: 1 }}>{pct}%</span>
+          )}
+        </div>
       </div>
-    </div>
-  );
-}
-
-function RateRow({ label, value, isLast }) {
-  return (
-    <div className="flex items-center justify-between" style={{ padding: '16px 0', borderBottom: isLast ? 'none' : '1px solid var(--border)' }}>
-      <span className="text-secondary font-medium">{label}</span>
-      <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.4rem', color: '#fff', fontWeight: 700 }}>{value}%</span>
     </div>
   );
 }

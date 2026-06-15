@@ -1,33 +1,50 @@
+/* Quick Stats Summary */
+.quickStats {
+  padding: 12px 18px;
+  margin-bottom: var(--bento-gap, 12px);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.quickStats strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Bento Grid */
 .bentoGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--bento-gap);
 }
 
+/* Metric Cards */
 .metricPanel {
   grid-column: span 1;
   display: flex;
   flex-direction: column;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.metricPanel:hover {
+  transform: scale(1.02);
+  border-color: #ffffff !important;
 }
 
+/* Insight Panel — dark, accent border */
 .insightPanel {
   grid-column: span 2;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-.insightPanel::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0), var(--accent), rgba(var(--accent-rgb), 0));
-  background-size: 200% auto;
-  animation: aiBorderShimmer 3s linear infinite;
-  z-index: 10;
+  justify-content: center;
+  padding: 28px;
+  background: #0d0d0d !important;
+  border: 1px solid #333 !important;
+  border-left: 3px solid var(--accent) !important;
+  box-shadow: none;
 }
 
 .insightHeader {
@@ -43,33 +60,72 @@
   justify-content: center;
   width: 36px; height: 36px;
   border-radius: 50%;
-  background: rgba(var(--accent-rgb), 0.15);
+  background: #1a1a1a;
+  border: 1px solid #333;
   color: var(--accent);
-  box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.2);
 }
 
 .insightTitle {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--text-primary);
+  color: #ffffff;
 }
 
 .insightBody {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
+  font-size: 0.92rem;
+  color: #aaaaaa;
+  line-height: 1.7;
   margin-bottom: 24px;
+  font-weight: 400;
 }
 
+/* Funnel */
 .funnelPanel {
   grid-column: span 2;
 }
 
+.funnelTrack {
+  height: 16px !important;
+}
+.funnelFill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.funnelPct {
+  position: absolute;
+  right: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Campaigns Table */
 .campaignsPanel {
   grid-column: span 4;
 }
 
+.campaignRow {
+  grid-template-columns: 32px minmax(0, 1fr) auto !important;
+  cursor: pointer;
+}
+.campaignRow:hover {
+  background: #111111 !important;
+}
+
+.rowNum {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sparkline */
 .sparklineContainer {
   margin-top: auto;
   padding-top: 16px;
@@ -85,10 +141,9 @@
 
 .sparklinePath {
   fill: none;
-  stroke-width: 2.5;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
   animation: drawPath 1.5s ease-out forwards;
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
@@ -98,6 +153,7 @@
   to { stroke-dashoffset: 0; }
 }
 
+/* Responsive */
 @media (max-width: 1024px) {
   .insightPanel, .funnelPanel { grid-column: span 4; }
   .metricPanel { grid-column: span 2; }
